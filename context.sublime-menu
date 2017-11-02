@@ -1,0 +1,12 @@
+[
+	{ 
+		"caption": "SubRESTing", 
+		"id": "SubRESTing", 
+		"children":[
+			{
+				"caption": "Hello World",
+				"command": "hello"
+			}
+		]
+	}
+]
