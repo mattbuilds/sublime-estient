@@ -5,6 +5,7 @@
 		"children":[
 			{
 				"caption": "Hello World",
+				"keys":["alt+shift+R"],
 				"command": "hello"
 			}
 		]

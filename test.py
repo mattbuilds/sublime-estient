@@ -2,8 +2,6 @@ import sublime
 import sublime_plugin
 import urllib.request
 
-base_url = "http://matt.duchamp/mastermind/accountRead/DEMO1018?login=aff_admin&secret=affuser"
-
 def url_call(url, method='GET', data=None):
 	try:
 		request = urllib.request.Request(
@@ -15,13 +13,24 @@ def url_call(url, method='GET', data=None):
 	except:
 		print("Failure")
 
+def get_request(view, file):
+	results = []
+	for line in file:
+		if (line.b - line.a == 0):
+			continue
+		request = view.substr(line).split()
+		results.append(url_call(request[1], request[0]))
+	return results
+
 class HelloCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
-		view = self.view
-		print(view.substr(sublime.Region(0, view.size())))
+		file = self.view.lines(sublime.Region(0, self.view.size()))
+		results = get_request(self.view, file)
 
-		result = url_call(base_url, 'GET')
-		file = sublime.Window.new_file(self.view.window())
-		file.set_name("Test Results")
-		file.insert(edit,0,result)
-		#self.view.insert(edit, 0, result)
+		#result = url_call(base_url, 'GET')
+		new_file = sublime.Window.new_file(self.view.window())
+		new_file.set_name("Test Results")
+
+		for result in results:
+			new_file.insert(edit, new_file.size(), result + "\n")
+		#self.view.insert(edit, 0, "Hello")
