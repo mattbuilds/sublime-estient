@@ -1,3 +1,9 @@
-GET https://jsonplaceholder.typicode.com/posts/1
+##Varaibles
+base_url=jsonplaceholder.typicode.com
 
-GET https://jsonplaceholder.typicode.com/posts/2
+##Requests
+GET https://{{base_url}}/posts/1
+
+GET https://{{base_url}}/posts/2
+
+GET https://{{base_url}}/posts/3	
