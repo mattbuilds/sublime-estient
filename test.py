@@ -3,7 +3,35 @@ import sublime_plugin
 import urllib.request
 import sys
 import json
+import re
 #import requests
+
+"""
+A List of assertions
+assertEquals
+assertNotEquals
+assertTrue
+assertFalse
+assertIs
+assertIsNot
+assertIsNone
+assertIsNotNone
+assertIn
+assertNotIn
+"""
+
+class Assertions():
+	def assertEquals(a, b):
+		try:
+			assert a == b
+		except:
+			print(a + " does not equal " + b)
+
+	def assertNotEquals(a, b):
+		try:
+			assert a != b
+		except:
+
 
 class TestRunner():
 	""" A test runner for RESTful APIs
@@ -34,10 +62,12 @@ class TestRunner():
 
 	def check_assertion(self, response, assertion):
 		response = json.loads(response)
+		regex = "\(.*\)"
+		assertion_name = re.sub(regex, '', assertion)
 		try:
-			exec(assertion)
+			func = getattr(Assertions, assertion_name)
 		except:
-			print("It Failed")
+			print("Not a Valid Assertion Type")
 
 	def execute(self, http_reqs, variables):
 		results = []
@@ -67,6 +97,7 @@ class SublimeRequestFileParse():
 		* Add the ability to have tests for each request
 	"""
 	def __init__(self, view, edit):
+		self.regex = "test\['.*'\]="
 		self.view = view
 		self.edit = edit
 		variable_start = self.view.find("##Varaibles", 0)
@@ -92,17 +123,33 @@ class SublimeRequestFileParse():
 		for line in lines:
 			if (line.b - line.a == 0):
 				continue
-			if 'assert' in self.view.substr(line):
-				http_reqs[-1]['assertions'].append(self.view.substr(line))
+			line_str = self.view.substr(line)
+			if self.check_test(line_str):
+				http_reqs[-1]['assertions'].append(self.parse_test(line_str))
 			else:
-				request = self.view.substr(line).split()
-				if len(request) == 2:
-					http_reqs.append({
-						'method' : request[0],
-						'url' : request[1],
-						'assertions' : []
-					})
+				http_req = self.parse_request(line_str)
+				if http_req is not None:
+					http_reqs.append(http_req)
 		return http_reqs
+
+	def check_test(self, content):
+		if re.match(self.regex, content) is not None:
+			return True
+		else:
+			return False
+
+	def parse_test(self, content):
+		return re.sub(self.regex, '', content)
+
+	def parse_request(self, content):
+		request = content.split()
+		if len(request) == 2:
+			http_req = {
+				'method' : request[0],
+				'url' : request[1],
+				'assertions' : []
+			}
+			return http_req
 
 	def output_file(self, output):
 		file = sublime.Window.new_file(self.view.window())

@@ -3,5 +3,9 @@ base_url=jsonplaceholder.typicode.com
 
 ##Requests
 GET https://{{base_url}}/posts/1
-assert response['id'] == 1
-assert 'title' in response
+test['Check id']=assertEquals(response['id'], 1)
+test['Check userId']=assertEquals(response['userId'], 1)
+
+GET https://{{base_url}}/posts/2
+test['Check id']=assertEquals(response['id'], 2)
+test['Check userId']=assertEquals(response['userId'], 2)
