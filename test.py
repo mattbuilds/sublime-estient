@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 import urllib.request
 import sys
+import json
 #import requests
 
 class TestRunner():
@@ -31,6 +32,13 @@ class TestRunner():
 			request['url'] = request['url'].replace("{{" + key + "}}",value)
 		return request
 
+	def check_assertion(self, response, assertion):
+		response = json.loads(response)
+		try:
+			exec(assertion)
+		except:
+			print("It Failed")
+
 	def execute(self, http_reqs, variables):
 		results = []
 		for request in http_reqs:
@@ -38,6 +46,8 @@ class TestRunner():
 			results.append(
 				self.url_call(request['url'], request['method'])
 			)
+			for assertion in request['assertions']:
+				self.check_assertion(results[-1], assertion)
 		return results	
 
 class SublimeRequestFileParse():
@@ -82,12 +92,16 @@ class SublimeRequestFileParse():
 		for line in lines:
 			if (line.b - line.a == 0):
 				continue
-			request = self.view.substr(line).split()
-			if len(request) == 2:
-				http_reqs.append({
-					'method' : request[0],
-					'url' : request[1]
-				})
+			if 'assert' in self.view.substr(line):
+				http_reqs[-1]['assertions'].append(self.view.substr(line))
+			else:
+				request = self.view.substr(line).split()
+				if len(request) == 2:
+					http_reqs.append({
+						'method' : request[0],
+						'url' : request[1],
+						'assertions' : []
+					})
 		return http_reqs
 
 	def output_file(self, output):
