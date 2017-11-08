@@ -1,3 +1,3 @@
 [
-	{ "keys":["alt+shift+r"], "command": "hello"}
+	{ "keys":["alt+shift+r"], "command": "run"}
 ]

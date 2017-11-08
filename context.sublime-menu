@@ -4,9 +4,8 @@
 		"id": "SubRESTing", 
 		"children":[
 			{
-				"caption": "Hello World",
-				"keys":["alt+shift+R"],
-				"command": "hello"
+				"caption": "Run Tests",
+				"command": "run"
 			}
 		]
 	}

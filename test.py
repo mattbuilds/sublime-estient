@@ -45,42 +45,44 @@ class SublimeRequestFileParse():
 	into the type of data that can be used to send and run tests
 
 	Attributes:
-		regions: an array of all the different Regions (sublime api) 
-		varaibles: a dict of of all the individual variables
-		requests: a list of all the requests parsed from the file
+		view: a sublime.View object of your current view
+		edit: a sublime edit object used for outputing a file
+		variables: a region that is created fom the variables in the file
+		requests: a region that is created for the requests in the file
+		regions: an array of all the different Regions (sublime api)
+			right now that is just variables and requests
 	Todo:
 		* Define a defintive way for the file to be written
 		* Add the ability to send data
 		* Add the ability to have tests for each request
 	"""
-	def get_initial_regions(view):
-		variable_start = view.find("##Varaibles", 0)
-		variable_end = view.find("##Request",0)
-		split = {
-			'variables' : sublime.Region(variable_start.b, variable_end.a),
-			'http_reqs' : sublime.Region(variable_end.b, view.size())
-		}
-		return split
+	def __init__(self, view, edit):
+		self.view = view
+		self.edit = edit
+		variable_start = self.view.find("##Varaibles", 0)
+		variable_end = self.view.find("##Request",0)
+		self.variables = sublime.Region(variable_start.b, variable_end.a)
+		self.requests = sublime.Region(variable_end.b, view.size())
 
-	def get_environment_variables(view, variables_region):
-		lines = view.lines(variables_region)
+	def get_environment_variables(self):
+		lines = self.view.lines(self.variables)
 		variables = {}
 		for line in lines:
 			try:
-				variable = view.substr(line).split('=')
+				variable = self.view.substr(line).split('=')
 				if len(variable) == 2:
 					variables[variable[0]] = variable[1]
 			except:
 				pass
 		return variables
 
-	def get_http_reqs(view, http_reqs_region):
-		lines = view.lines(http_reqs_region)
+	def get_requests(self):
+		lines = self.view.lines(self.requests)
 		http_reqs = []
 		for line in lines:
 			if (line.b - line.a == 0):
 				continue
-			request = view.substr(line).split()
+			request = self.view.substr(line).split()
 			if len(request) == 2:
 				http_reqs.append({
 					'method' : request[0],
@@ -88,16 +90,19 @@ class SublimeRequestFileParse():
 				})
 		return http_reqs
 
-class HelloCommand(sublime_plugin.TextCommand):
+	def output_file(self, output):
+		file = sublime.Window.new_file(self.view.window())
+		file.set_name("Test Results")
+		for test in output:
+			file.insert(self.edit, file.size(), test +"\n")
+
+
+class RunCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
-		file = self.view.lines(sublime.Region(0, self.view.size()))
-		regions = SublimeRequestFileParse.get_initial_regions(self.view)
-		variables = SublimeRequestFileParse.get_environment_variables(self.view, regions['variables'])
-		http_reqs = SublimeRequestFileParse.get_http_reqs(self.view, regions['http_reqs'])
+		srfp = SublimeRequestFileParse(self.view, edit)
+		variables = srfp.get_environment_variables()
+		http_reqs = srfp.get_requests()
 
 		results = TestRunner().execute(http_reqs, variables)
 
-		new_file = sublime.Window.new_file(self.view.window())
-		new_file.set_name("Test Results")
-		for result in results:
-			new_file.insert(edit, new_file.size(), result + "\n")
+		srfp.output_file(results)

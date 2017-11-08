@@ -3,7 +3,3 @@ base_url=jsonplaceholder.typicode.com
 
 ##Requests
 GET https://{{base_url}}/posts/1
-
-GET https://{{base_url}}/posts/2
-
-GET https://{{base_url}}/posts/3	
