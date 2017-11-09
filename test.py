@@ -21,17 +21,18 @@ assertNotIn
 """
 
 class Assertions():
-	def assertEquals(a, b):
+	def assertEquals(response, assertion):
 		try:
-			assert a == b
+			response_regex = "\['(.*?)'\]"
+			paramater_str = re.search('assertEquals\((.*)\)',assertion).group(1)
+			# if response loop through and get all keys
 		except:
-			print(a + " does not equal " + b)
+			pass
 
-	def assertNotEquals(a, b):
-		try:
-			assert a != b
-		except:
-
+		# try:
+		# 	assert a == b
+		# except:
+		# 	print(a + " does not equal " + b)
 
 class TestRunner():
 	""" A test runner for RESTful APIs
@@ -64,10 +65,10 @@ class TestRunner():
 		response = json.loads(response)
 		regex = "\(.*\)"
 		assertion_name = re.sub(regex, '', assertion)
-		try:
-			func = getattr(Assertions, assertion_name)
-		except:
-			print("Not a Valid Assertion Type")
+		func = getattr(Assertions, assertion_name)
+		func(response, assertion)
+		#except:
+			#print("Not a Valid Assertion Type")
 
 	def execute(self, http_reqs, variables):
 		results = []
