@@ -1,0 +1,26 @@
+variables:
+  base_url : jsonplaceholder.typicode.com
+
+requests:
+  - method : GET
+    url : https://{{base_url}}/posts/1
+    tests:
+      - assert : equals
+        expected: 1
+        actual : response['id']
+      - assert : equals
+        expected : 1
+        actual : response['userId']
+
+  - method : GET
+    url : https://{{base_url}}/posts/2
+    tests:
+      - assert : equals
+        expected: 2
+        actual : 
+          - id
+          - 0
+          - value
+      - assert : equals
+        expected : 1
+        actual : response['userId']

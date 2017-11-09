@@ -4,6 +4,7 @@ import urllib.request
 import sys
 import json
 import re
+import yaml
 #import requests
 
 """
@@ -21,6 +22,16 @@ assertNotIn
 """
 
 class Assertions():
+	def __init__(self):
+		pass
+
+	def __parse_response_regex(self, actual):
+		pass
+
+	def equals(self, test, response):
+		self.__parse_response_regex(test['actual'])
+		pass
+
 	def assertEquals(response, assertion):
 		try:
 			response_regex = "\['(.*?)'\]"
@@ -70,15 +81,20 @@ class TestRunner():
 		#except:
 			#print("Not a Valid Assertion Type")
 
+	def __run_tests(self, tests, response):
+		assertions = Assertions()
+		for test in tests:
+			assertions.equals(test, response)
+			
+
 	def execute(self, http_reqs, variables):
 		results = []
 		for request in http_reqs:
 			request = self.set_environment_variables(request, variables)
-			results.append(
-				self.url_call(request['url'], request['method'])
-			)
-			for assertion in request['assertions']:
-				self.check_assertion(results[-1], assertion)
+			response = self.url_call(request['url'], request['method'])
+			self.__run_tests(request['tests'], response)
+			results.append(response)
+
 		return results	
 
 class SublimeRequestFileParse():
@@ -98,59 +114,23 @@ class SublimeRequestFileParse():
 		* Add the ability to have tests for each request
 	"""
 	def __init__(self, view, edit):
-		self.regex = "test\['.*'\]="
 		self.view = view
 		self.edit = edit
-		variable_start = self.view.find("##Varaibles", 0)
-		variable_end = self.view.find("##Request",0)
-		self.variables = sublime.Region(variable_start.b, variable_end.a)
-		self.requests = sublime.Region(variable_end.b, view.size())
+		info_dict = self.__parse_yaml()
+		self.variables = info_dict['variables']
+		self.requests = info_dict['requests']
+
+	def __parse_yaml(self):
+		region = self.view.substr(sublime.Region(0, self.view.size()))
+		info_dict = yaml.load(region)
+		print(info_dict)
+		return info_dict
 
 	def get_environment_variables(self):
-		lines = self.view.lines(self.variables)
-		variables = {}
-		for line in lines:
-			try:
-				variable = self.view.substr(line).split('=')
-				if len(variable) == 2:
-					variables[variable[0]] = variable[1]
-			except:
-				pass
-		return variables
+		return self.variables
 
 	def get_requests(self):
-		lines = self.view.lines(self.requests)
-		http_reqs = []
-		for line in lines:
-			if (line.b - line.a == 0):
-				continue
-			line_str = self.view.substr(line)
-			if self.check_test(line_str):
-				http_reqs[-1]['assertions'].append(self.parse_test(line_str))
-			else:
-				http_req = self.parse_request(line_str)
-				if http_req is not None:
-					http_reqs.append(http_req)
-		return http_reqs
-
-	def check_test(self, content):
-		if re.match(self.regex, content) is not None:
-			return True
-		else:
-			return False
-
-	def parse_test(self, content):
-		return re.sub(self.regex, '', content)
-
-	def parse_request(self, content):
-		request = content.split()
-		if len(request) == 2:
-			http_req = {
-				'method' : request[0],
-				'url' : request[1],
-				'assertions' : []
-			}
-			return http_req
+		return self.requests
 
 	def output_file(self, output):
 		file = sublime.Window.new_file(self.view.window())
@@ -164,6 +144,9 @@ class RunCommand(sublime_plugin.TextCommand):
 		srfp = SublimeRequestFileParse(self.view, edit)
 		variables = srfp.get_environment_variables()
 		http_reqs = srfp.get_requests()
+
+		print(variables)
+		print(http_reqs)
 
 		results = TestRunner().execute(http_reqs, variables)
 
