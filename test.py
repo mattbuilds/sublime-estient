@@ -22,28 +22,36 @@ assertNotIn
 """
 
 class Assertions():
-	def __init__(self):
+	def __init__(self, response):
+		self.response = json.loads(response)
 		pass
 
-	def __parse_response_regex(self, actual):
-		pass
-
-	def equals(self, test, response):
-		self.__parse_response_regex(test['actual'])
-		pass
-
-	def assertEquals(response, assertion):
+	def __parse_yaml_variables(self, test, key):
 		try:
-			response_regex = "\['(.*?)'\]"
-			paramater_str = re.search('assertEquals\((.*)\)',assertion).group(1)
-			# if response loop through and get all keys
+			actual = self.response[test[key]['response']]
 		except:
-			pass
+			actual = test[key]
+		return actual
 
-		# try:
-		# 	assert a == b
-		# except:
-		# 	print(a + " does not equal " + b)
+	def __setup_assertion(self, test):
+		expected = self.__parse_yaml_variables(test, 'expected')
+		actual = self.__parse_yaml_variables(test, 'actual')
+		return {'expected':expected, 'actual':actual}
+
+	def equals(self, test):
+		setup = self.__setup_assertion(test)
+		try:
+			assert setup['expected'] == setup['actual']
+		except:
+			print("failed")
+
+	def notEquals(self, test):
+		setup = self.__setup_assertion(test)
+		try:
+			assert setup['expected'] != setup['actual']
+		except:
+			print("are equal")
+
 
 class TestRunner():
 	""" A test runner for RESTful APIs
@@ -72,20 +80,11 @@ class TestRunner():
 			request['url'] = request['url'].replace("{{" + key + "}}",value)
 		return request
 
-	def check_assertion(self, response, assertion):
-		response = json.loads(response)
-		regex = "\(.*\)"
-		assertion_name = re.sub(regex, '', assertion)
-		func = getattr(Assertions, assertion_name)
-		func(response, assertion)
-		#except:
-			#print("Not a Valid Assertion Type")
-
 	def __run_tests(self, tests, response):
-		assertions = Assertions()
+		assertions = Assertions(response)
 		for test in tests:
-			assertions.equals(test, response)
-			
+			assertion = getattr(assertions, test['assert'])
+			assertion(test)
 
 	def execute(self, http_reqs, variables):
 		results = []

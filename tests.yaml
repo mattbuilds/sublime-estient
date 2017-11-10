@@ -7,10 +7,12 @@ requests:
     tests:
       - assert : equals
         expected: 1
-        actual : response['id']
+        actual : 
+          response : id
       - assert : equals
         expected : 1
-        actual : response['userId']
+        actual : 
+          response : userId
 
   - method : GET
     url : https://{{base_url}}/posts/2
@@ -18,9 +20,12 @@ requests:
       - assert : equals
         expected: 2
         actual : 
-          - id
-          - 0
-          - value
+          response: id
       - assert : equals
         expected : 1
-        actual : response['userId']
+        actual : 
+          response : userId
+      - assert : notEquals
+        expected : 2
+        actual :
+          response : userId
