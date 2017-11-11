@@ -1,5 +1,19 @@
 import sublime
 import yaml
+from collections import OrderedDict
+
+def represent_ordereddict(dumper, data):
+    value = []
+
+    for item_key, item_value in data.items():
+        node_key = dumper.represent_data(item_key)
+        node_value = dumper.represent_data(item_value)
+
+        value.append((node_key, node_value))
+
+    return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', value)
+
+yaml.add_representer(OrderedDict, represent_ordereddict)
 
 class SublimeRequestFileParse():
 	""" The SublimeRequestFileParse uses the sublime API to parse an existing file 
@@ -29,8 +43,9 @@ class SublimeRequestFileParse():
 		info_dict = yaml.load(region)
 		return info_dict
 
-	def __dict_to_yaml(self, dictionary):
-		output = yaml.dump(dictionary, default_flow_style=False)
+	def __dict_to_yaml(self, name, dictionary):
+		request = {name:dictionary[name]}
+		output = yaml.dump(request, default_flow_style=False)
 		return output
 
 	def get_environment_variables(self):
@@ -39,10 +54,39 @@ class SublimeRequestFileParse():
 	def get_requests(self):
 		return self.requests
 
+	def __request_file_write(self, file, key, dictionary):
+		string = self.__dict_to_yaml(key, dictionary)
+		file.insert(self.edit, file.size(), '    ' + string)
+
+	def __handle_requests(self, requests):
+		result = []
+		for request in requests:
+			ord_dict = OrderedDict()
+			ord_dict['method'] = request['method']
+			ord_dict['url'] = request['url']
+			ord_dict['tests'] = self.__handle_tests(request['tests'])
+			ord_dict['response'] = request['response']
+			result.append(ord_dict)
+		return result
+		
+	def __handle_tests(self, tests):
+		result = []
+		for test in tests:
+			ord_dict = OrderedDict()
+			ord_dict['assert'] = test['assert']
+			ord_dict['expected'] = test['expected']
+			ord_dict['actual'] = test['actual']
+			ord_dict['result'] = test['result']
+			result.append(ord_dict)
+		return result
+
 	def output_file(self, output):
-		file = sublime.Window.new_file(self.view.window())
-		file.set_name("results.yaml")
-		result = self.__dict_to_yaml(output)
-		file.insert(self.edit, file.size(), result)
-		#for test in output:
-		#	file.insert(self.edit, file.size(), test +"\n")
+		file = self.view ##sublime.Window.new_file(self.view.window())
+		#file.set_name("results.yaml")
+		variables = self.__dict_to_yaml('variables', output)
+		output['requests'] = self.__handle_requests(output['requests'])
+		requests = self.__dict_to_yaml('requests', output)
+		file.erase(self.edit, sublime.Region(0, file.size()))
+		file.insert(self.edit, file.size(), variables)
+		file.insert(self.edit, file.size(), '\n')
+		file.insert(self.edit, file.size(), requests)

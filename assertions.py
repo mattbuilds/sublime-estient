@@ -1,5 +1,3 @@
-import json
-
 """
 A List of assertions
 assertEquals
@@ -16,7 +14,7 @@ assertNotIn
 
 class Assertions():
 	def __init__(self, response):
-		self.response = json.loads(response)
+		self.response = response
 		pass
 
 	def __parse_yaml_variables(self, test, key):

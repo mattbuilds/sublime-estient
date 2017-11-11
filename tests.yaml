@@ -1,31 +1,43 @@
 variables:
-  base_url : jsonplaceholder.typicode.com
+  base_url: jsonplaceholder.typicode.com
 
 requests:
-  - method : GET
-    url : https://{{base_url}}/posts/1
-    tests:
-      - assert : equals
-        expected: 1
-        actual : 
-          response : id
-      - assert : equals
-        expected : 1
-        actual : 
-          response : userId
-
-  - method : GET
-    url : https://{{base_url}}/posts/2
-    tests:
-      - assert : equals
-        expected: 2
-        actual : 
-          response: id
-      - assert : equals
-        expected : 1
-        actual : 
-          response : userId
-      - assert : notEquals
-        expected : 2
-        actual :
-          response : userId
+- method: GET
+  tests:
+  - assert: equals
+    expected: 1
+    actual:
+      response: id
+    result: true
+  - assert: equals
+    expected: 1
+    actual:
+      response: userId
+    result: true
+  url: https://{{base_url}}/posts/1
+  response: '{"id": 1, "userId": 1, "title": "sunt aut facere repellat provident occaecati
+    excepturi optio reprehenderit", "body": "quia et suscipit\nsuscipit recusandae
+    consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum
+    rerum est autem sunt rem eveniet architecto"}'
+- method: GET
+  url: https://{{base_url}}/posts/2
+  tests:
+  - assert: equals
+    expected: 2
+    actual:
+      response: id
+    result: true
+  - assert: equals
+    expected: 1
+    actual:
+      response: userId
+    result: true
+  - assert: notEquals
+    expected: 2
+    actual:
+      response: userId
+    result: true
+  response: '{"id": 2, "userId": 1, "title": "qui est esse", "body": "est rerum tempore
+    vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis
+    voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus
+    qui neque nisi nulla"}'

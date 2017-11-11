@@ -1,4 +1,5 @@
 import urllib.request
+import json
 from .assertions import Assertions
 
 class TestRunner():
@@ -23,6 +24,12 @@ class TestRunner():
 		except:
 			print("Failure")
 
+	def __json_to_dict(self, response):
+		return json.loads(response)
+
+	def __dict_to_json(self, response):
+		return json.dumps(response)
+
 	def set_environment_variables(self, request, variables):
 		for key, value in variables.items():
 			request['url'] = request['url'].replace("{{" + key + "}}",value)
@@ -41,8 +48,13 @@ class TestRunner():
 	def execute(self, http_reqs, variables):
 		results = []
 		for request in http_reqs:
+			result = {
+				'url':request['url'],
+				'method':request['method']
+			}
 			request = self.set_environment_variables(request, variables)
-			request['response'] = self.url_call(request['url'], request['method'])
-			request['tests'] = self.__run_tests(request['tests'], request['response'])
-			results.append(request)
+			response = self.__json_to_dict(self.url_call(request['url'], request['method']))
+			result['tests'] = self.__run_tests(request['tests'], response)
+			result['response'] = self.__dict_to_json(response)
+			results.append(result)
 		return results
