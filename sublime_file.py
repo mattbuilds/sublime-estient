@@ -64,7 +64,8 @@ class SublimeRequestFileParse():
 			ord_dict = OrderedDict()
 			ord_dict['method'] = request['method']
 			ord_dict['url'] = request['url']
-			ord_dict['tests'] = self.__handle_tests(request['tests'])
+			if 'tests' in request:
+				ord_dict['tests'] = self.__handle_tests(request['tests'])
 			ord_dict['response'] = request['response']
 			result.append(ord_dict)
 		return result

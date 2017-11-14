@@ -54,7 +54,8 @@ class TestRunner():
 			}
 			request = self.set_environment_variables(request, variables)
 			response = self.__json_to_dict(self.url_call(request['url'], request['method']))
-			result['tests'] = self.__run_tests(request['tests'], response)
+			if 'tests' in request:
+				result['tests'] = self.__run_tests(request['tests'], response)
 			result['response'] = self.__dict_to_json(response)
 			results.append(result)
 		return results

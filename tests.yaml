@@ -3,18 +3,18 @@ variables:
 
 requests:
 - method: GET
+  url: https://{{base_url}}/posts/1
   tests:
-  - assert: equals
+  - assert: equal
     expected: 1
     actual:
       response: id
     result: true
-  - assert: equals
+  - assert: equal
     expected: 1
     actual:
       response: userId
     result: true
-  url: https://{{base_url}}/posts/1
   response: '{"id": 1, "userId": 1, "title": "sunt aut facere repellat provident occaecati
     excepturi optio reprehenderit", "body": "quia et suscipit\nsuscipit recusandae
     consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum
@@ -22,17 +22,17 @@ requests:
 - method: GET
   url: https://{{base_url}}/posts/2
   tests:
-  - assert: equals
+  - assert: equal
     expected: 2
     actual:
       response: id
     result: true
-  - assert: equals
+  - assert: equal
     expected: 1
     actual:
       response: userId
     result: true
-  - assert: notEquals
+  - assert: notEqual
     expected: 2
     actual:
       response: userId
@@ -41,3 +41,15 @@ requests:
     vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis
     voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus
     qui neque nisi nulla"}'
+- method: GET
+  url: https://{{base_url}}/posts/3
+  tests:
+  - assert: equal
+    expected: 3
+    actual:
+      response: id
+    result: true
+  response: '{"id": 3, "userId": 1, "title": "ea molestias quasi exercitationem repellat
+    qui ipsa sit aut", "body": "et iusto sed quo iure\nvoluptatem occaecati omnis
+    eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae
+    porro eius odio et labore et velit aut"}'
