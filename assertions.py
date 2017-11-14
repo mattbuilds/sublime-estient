@@ -19,7 +19,9 @@ class Assertions():
 
 	def __parse_yaml_variables(self, test, key):
 		try:
-			actual = self.response[test[key]['response']]
+			actual = self.response
+			for k in test[key]:
+				actual = actual[k]
 		except:
 			actual = test[key]
 		return actual
