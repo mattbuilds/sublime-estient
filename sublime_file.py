@@ -41,6 +41,7 @@ class SublimeRequestFileParse():
 	def __parse_yaml(self):
 		region = self.view.substr(sublime.Region(0, self.view.size()))
 		info_dict = yaml.load(region)
+		print(info_dict)
 		return info_dict
 
 	def __dict_to_yaml(self, name, dictionary):
@@ -64,6 +65,8 @@ class SublimeRequestFileParse():
 			ord_dict = OrderedDict()
 			ord_dict['method'] = request['method']
 			ord_dict['url'] = request['url']
+			if 'body' in request:
+				ord_dict['boyd'] = request['body']
 			if 'tests' in request:
 				ord_dict['tests'] = self.__handle_tests(request['tests'])
 			ord_dict['response'] = request['response']

@@ -1,6 +1,8 @@
 import urllib.request
 import json
+import requests
 from .assertions import Assertions
+
 
 class TestRunner():
 	""" A test runner for RESTful APIs
@@ -14,15 +16,19 @@ class TestRunner():
 		* Add the ability to create a JSON and/or JUnit report
 	"""
 	def url_call(self, url, method='GET', data=None):
-		try:
-			request = urllib.request.Request(
-				url=url,
-				method=method,
-				data = data)
-			response =  urllib.request.urlopen(request)
-			return response.read().decode('utf-8')
-		except:
-			print("Failure")
+		headers = {
+			'Content-type' : 'application/json', 
+			'Accept' : 'text/plain'
+		}
+
+		if method == 'GET':
+			response = requests.get(url)
+		elif method == 'POST':
+			response = requests.post(url, data=data)
+
+		print(response.json())
+
+		return response.json()
 
 	def __json_to_dict(self, response):
 		return json.loads(response)
@@ -52,8 +58,16 @@ class TestRunner():
 				'url':request['url'],
 				'method':request['method']
 			}
-			request = self.set_environment_variables(request, variables)
-			response = self.__json_to_dict(self.url_call(request['url'], request['method']))
+
+			if 'body' in request:
+				result['body'] = request['body']
+				request = self.set_environment_variables(request, variables)
+				response = self.url_call(request['url'], request['method'], request['body'])
+			else:
+				request = self.set_environment_variables(request, variables)
+				response = self.url_call(request['url'], request['method'])
+			
+			
 			if 'tests' in request:
 				result['tests'] = self.__run_tests(request['tests'], response)
 			result['response'] = self.__dict_to_json(response)
