@@ -15,19 +15,20 @@ assertNotIn
 class Assertions():
 	def __init__(self, response):
 		self.response = response
-		pass
 
 	def __parse_yaml_variables(self, test, key):
-		try:
-			actual = self.response
-			for k in test[key]:
+		if 'response' in test[key]:
+			actual = self.response.json()
+			for k in test[key]['response']:
 				actual = actual[k]
-		except:
+		elif 'status_code' in test[key]:
+			actual = self.response.status_code
+		else:
 			actual = test[key]
 		return actual
 
 	def __setup_assertion(self, test):
-		expected = self.__parse_yaml_variables(test, 'expected')
+		expected = test['expected']
 		actual = self.__parse_yaml_variables(test, 'actual')
 		return {'expected':expected, 'actual':actual}
 

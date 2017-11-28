@@ -41,7 +41,6 @@ class SublimeRequestFileParse():
 	def __parse_yaml(self):
 		region = self.view.substr(sublime.Region(0, self.view.size()))
 		info_dict = yaml.load(region)
-		print(info_dict)
 		return info_dict
 
 	def __dict_to_yaml(self, name, dictionary):
@@ -69,7 +68,11 @@ class SublimeRequestFileParse():
 				ord_dict['boyd'] = request['body']
 			if 'tests' in request:
 				ord_dict['tests'] = self.__handle_tests(request['tests'])
-			ord_dict['response'] = request['response']
+			ord_dict['output'] = {
+				'status_code' : request['status_code'],
+				'response' : request['response'],
+				'headers' : request['headers']
+			}
 			result.append(ord_dict)
 		return result
 		
@@ -94,3 +97,18 @@ class SublimeRequestFileParse():
 		file.insert(self.edit, file.size(), variables)
 		file.insert(self.edit, file.size(), '\n')
 		file.insert(self.edit, file.size(), requests)
+
+	def output_test_results(self, test_results, test_failures):
+		file = sublime.Window.new_file(self.view.window())
+		file.set_name("results.yaml")
+		total = len(test_results)
+		passes = test_results.count(True)
+		if total == passes:
+			file.insert(self.edit, file.size(), "All Tests Passed!\n")
+		summary = "A total of %s out of %s tests passed\n" % (passes, total)
+		file.insert(self.edit, file.size(), summary)
+
+		if test_failures:
+			file.insert(self.edit, file.size(), "\nList of Failures:\n")
+			for failure in test_failures:
+				file.insert(self.edit, file.size(), failure + "\n")
