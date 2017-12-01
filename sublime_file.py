@@ -68,6 +68,8 @@ class SublimeRequestFileParse():
 				ord_dict['boyd'] = request['body']
 			if 'tests' in request:
 				ord_dict['tests'] = self.__handle_tests(request['tests'])
+			if 'variables' in request:
+				ord_dict['variables'] = self.__handle_variables(request['variables'])
 			ord_dict['output'] = {
 				'status_code' : request['status_code'],
 				'response' : request['response'],
@@ -86,6 +88,21 @@ class SublimeRequestFileParse():
 			ord_dict['result'] = test['result']
 			result.append(ord_dict)
 		return result
+
+	def __variables_order_dict(self, variable):
+		ord_dict = OrderedDict()
+		ord_dict['name'] = variable['name']
+		ord_dict['value'] = variable['value']
+		return ord_dict
+
+	def __handle_variables(self, variables):
+		if type(variables) is list:
+			result = []
+			for variable in variables:
+				result.append(self.__variables_order_dict(variable))
+			return result
+		else:
+			return self.__variables_order_dict(variables)
 
 	def output_file(self, output):
 		file = self.view ##sublime.Window.new_file(self.view.window())

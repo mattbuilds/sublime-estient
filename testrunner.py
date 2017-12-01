@@ -1,4 +1,3 @@
-import urllib.request
 import json
 import requests
 from .assertions import Assertions
@@ -43,7 +42,7 @@ class TestRunner():
 
 	def __set_environment_variables(self, request, variables):
 		for key, value in variables.items():
-			request['url'] = request['url'].replace("{{" + key + "}}",value)
+			request['url'] = request['url'].replace("{{" + key + "}}",str(value))
 		return request
 
 	def __run_tests(self, request, tests, response):
@@ -65,6 +64,13 @@ class TestRunner():
 	def __set_test_result(self, result):
 		self.test_results.append(result)
 
+	def __get_variables(self, request_variables, variables, response):
+		variable = response.json()
+		for k in request_variables['value']['response']:
+			variable= variable[k]
+		variables[request_variables['name']] = variable
+		return variables
+
 	def get_test_failures(self):
 		return self.test_failures
 
@@ -74,6 +80,7 @@ class TestRunner():
 	def execute(self, http_reqs, variables):
 		results = []
 		for request in http_reqs:
+			print(variables)
 			result = {
 				'url':request['url'],
 				'method':request['method']
@@ -88,6 +95,10 @@ class TestRunner():
 			
 			if 'tests' in request:
 				result['tests'] = self.__run_tests(request, request['tests'], response)
+			if 'variables' in request:
+				result['variables'] = request['variables']
+				variables =  self.__get_variables(request['variables'], variables, response)
+
 			result['status_code'] = response.status_code
 			result['response'] = self.__dict_to_json(response.json())
 			result['headers'] = dict(response.headers)
