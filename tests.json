@@ -1,0 +1,22 @@
+{
+    "variables": {
+        "base_url": "jsonplaceholder.typicode.com"
+    },
+    "requests": [
+        {
+            "method": "GET", 
+            "url": "https://{{base_url}}/posts/1", 
+            "headers": {
+                "Authorization": "SomePassword"
+            }, 
+            "tests": [
+                {
+                    "assert": "equal",
+                    "expected": 200, 
+                    "actual": "status_code", 
+                    "result": true
+                }
+            ]
+        }
+    ]
+}

@@ -1,5 +1,6 @@
 import sublime
 import yaml
+import json
 from collections import OrderedDict
 
 def represent_ordereddict(dumper, data):
@@ -28,31 +29,46 @@ class SublimeRequestFileParse():
 			right now that is just variables and requests
 	Todo:
 		* Define a defintive way for the file to be written
-		* Add the ability to send data
 		* Add the ability to have tests for each request
 	"""
 	def __init__(self, view, edit):
 		self.view = view
 		self.edit = edit
-		info_dict = self.__parse_yaml()
+		info_dict = self.__parse_input()
 		self.variables = info_dict['variables']
 		self.requests = info_dict['requests']
 
-	def __parse_yaml(self):
+	def __parse_input(self):
 		region = self.view.substr(sublime.Region(0, self.view.size()))
-		info_dict = yaml.load(region)
+		try:
+			info_dict = json.loads(region)
+			self.input = 'json'
+		except ValueError as exc:
+			info_dict = yaml.load(region)
+			self.input = 'yaml'
 		return info_dict
 
+	def __dict_to_output(self, name, dictionary):
+		print(self.input)
+		if self.input == 'yaml':
+			return self.__dict_to_yaml(name, dictionary)
+		elif self.input == 'json':
+			return self.__dict_to_json(name, dictionary)
+		else:
+			raise Exception("Input type was never set") 
+
 	def __dict_to_yaml(self, name, dictionary):
-		request = {name:dictionary[name]}
+		request = {name:dictionary}
 		output = yaml.dump(request, default_flow_style=False)
 		return output
 
-	def get_environment_variables(self):
-		return self.variables
+	def __dict_to_json(self, name, dictionary):
+		request = {name:dictionary}
+		output = json.dumps(request, indent=4)
+		return output
 
-	def get_requests(self):
-		return self.requests
+	def get_restestful_input(self):
+		return self.variables, self.requests
 
 	def __request_file_write(self, file, key, dictionary):
 		string = self.__dict_to_yaml(key, dictionary)
@@ -65,16 +81,14 @@ class SublimeRequestFileParse():
 			ord_dict['method'] = request['method']
 			ord_dict['url'] = request['url']
 			if 'body' in request:
-				ord_dict['boyd'] = request['body']
+				ord_dict['body'] = request['body']
+			if 'headers' in request:
+				ord_dict['headers'] = request['headers']
 			if 'tests' in request:
 				ord_dict['tests'] = self.__handle_tests(request['tests'])
 			if 'variables' in request:
 				ord_dict['variables'] = self.__handle_variables(request['variables'])
-			ord_dict['output'] = {
-				'status_code' : request['status_code'],
-				'response' : request['response'],
-				'headers' : request['headers']
-			}
+			ord_dict['output'] = request['output']
 			result.append(ord_dict)
 		return result
 		
@@ -104,18 +118,21 @@ class SublimeRequestFileParse():
 		else:
 			return self.__variables_order_dict(variables)
 
-	def output_file(self, output):
-		file = self.view ##sublime.Window.new_file(self.view.window())
-		#file.set_name("results.yaml")
-		variables = self.__dict_to_yaml('variables', output)
-		output['requests'] = self.__handle_requests(output['requests'])
-		requests = self.__dict_to_yaml('requests', output)
+	def set_output(self, results):
+		self.__output_file(results['response'])
+		self.__output_test_results(results['tests'], results['failures'])
+
+	def __output_file(self, output):
+		file = self.view
+		variables = self.__dict_to_output('variables', self.variables)
+		output = self.__handle_requests(output)
+		requests = self.__dict_to_output('requests', output)
 		file.erase(self.edit, sublime.Region(0, file.size()))
 		file.insert(self.edit, file.size(), variables)
 		file.insert(self.edit, file.size(), '\n')
 		file.insert(self.edit, file.size(), requests)
 
-	def output_test_results(self, test_results, test_failures):
+	def __output_test_results(self, test_results, test_failures):
 		file = sublime.Window.new_file(self.view.window())
 		file.set_name("results.yaml")
 		total = len(test_results)

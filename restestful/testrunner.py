@@ -2,7 +2,6 @@ import json
 import requests
 from .assertions import Assertions
 
-
 class TestRunner():
 	""" A test runner for RESTful APIs
 
@@ -18,27 +17,21 @@ class TestRunner():
 		self.test_results = []
 		self.test_failures = []
 
-	def url_call(self, url, method='GET', data=None, headers=None):
-		default_headers = {
+	def url_call(self, url, method='GET', data=None, user_headers=None):
+		headers = {
 			'Content-type' : 'application/json', 
 			'Accept' : 'text/plain'
 		}
 
-		if headers is None:
-			headers = default_headers
-
+		if user_headers is not None:
+			headers.update(user_headers)
+			
 		if method == 'GET':
 			response = requests.get(url, headers=headers)
 		elif method == 'POST':
 			response = requests.post(url, data=data, headers=headers)
 
 		return response
-
-	def __json_to_dict(self, response):
-		return json.loads(response)
-
-	def __dict_to_json(self, response):
-		return json.dumps(response)
 
 	def __set_environment_variables(self, request, variables):
 		for key, value in variables.items():
@@ -71,6 +64,13 @@ class TestRunner():
 		variables[request_variables['name']] = variable
 		return variables
 
+	def __check_in_request(self, request, result, key):
+		if key in request:
+			result[key] = request[key]
+		else:
+			request[key] = None
+		return result, request
+
 	def get_test_failures(self):
 		return self.test_failures
 
@@ -86,21 +86,23 @@ class TestRunner():
 				'method':request['method']
 			}
 
-			if 'body' in request:
-				result['body'] = request['body']
-			else:
-				request['body'] = None
+			result, request = self.__check_in_request(request, result, 'body')
+			result, request = self.__check_in_request(request, result, 'headers')
 			request = self.__set_environment_variables(request, variables)
-			response = self.url_call(request['url'], request['method'], request['body'])
+			response = self.url_call(request['url'], request['method'], 
+									 request['body'], request['headers'])
 			
 			if 'tests' in request:
 				result['tests'] = self.__run_tests(request, request['tests'], response)
+			
 			if 'variables' in request:
 				result['variables'] = request['variables']
 				variables =  self.__get_variables(request['variables'], variables, response)
 
-			result['status_code'] = response.status_code
-			result['response'] = self.__dict_to_json(response.json())
-			result['headers'] = dict(response.headers)
+			result['output'] = {
+				'status_code' : response.status_code,
+				'response' : response.json(),
+				'headers' : dict(response.headers)
+			}
 			results.append(result)
 		return results
