@@ -49,7 +49,6 @@ class SublimeRequestFileParse():
 		return info_dict
 
 	def __dict_to_output(self, name, dictionary):
-		print(self.input)
 		if self.input == 'yaml':
 			return self.__dict_to_yaml(name, dictionary)
 		elif self.input == 'json':
@@ -58,13 +57,11 @@ class SublimeRequestFileParse():
 			raise Exception("Input type was never set") 
 
 	def __dict_to_yaml(self, name, dictionary):
-		request = {name:dictionary}
-		output = yaml.dump(request, default_flow_style=False)
+		output = yaml.dump(dictionary, default_flow_style=False)
 		return output
 
 	def __dict_to_json(self, name, dictionary):
-		request = {name:dictionary}
-		output = json.dumps(request, indent=4)
+		output = json.dumps(dictionary, indent=4)
 		return output
 
 	def get_restestful_input(self):
@@ -122,15 +119,16 @@ class SublimeRequestFileParse():
 		self.__output_file(results['response'])
 		self.__output_test_results(results['tests'], results['failures'])
 
-	def __output_file(self, output):
+	def __output_file(self, requests):
 		file = self.view
-		variables = self.__dict_to_output('variables', self.variables)
-		output = self.__handle_requests(output)
-		requests = self.__dict_to_output('requests', output)
+		requests = self.__handle_requests(requests)
+		output_dict = {
+			'variables' : self.variables,
+			'requests' : requests
+		}
+		output = self.__dict_to_output('requests', output_dict)
 		file.erase(self.edit, sublime.Region(0, file.size()))
-		file.insert(self.edit, file.size(), variables)
-		file.insert(self.edit, file.size(), '\n')
-		file.insert(self.edit, file.size(), requests)
+		file.insert(self.edit, file.size(), output)
 
 	def __output_test_results(self, test_results, test_failures):
 		file = sublime.Window.new_file(self.view.window())
