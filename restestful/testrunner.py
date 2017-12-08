@@ -9,7 +9,7 @@ class TestRunner():
 
 	Attributes:
 		requests: a list of http requests to run, each test will include a URL, mthod, and data
-		varaibles: a dict of environment variables that can replace anything in the tests
+		variables: a dict of environment variables that can replace anything in the tests
 	Todo:
 		* Add the ability to create a JSON and/or JUnit report
 	""" 
@@ -59,9 +59,10 @@ class TestRunner():
 
 	def __get_variables(self, request_variables, variables, response):
 		variable = response.json()
-		for k in request_variables['value']['response']:
-			variable= variable[k]
-		variables[request_variables['name']] = variable
+		for request_variable in request_variables:
+			for k in request_variable['value']['response']:
+				variable= variable[k]
+			variables[request_variable['name']] = variable
 		return variables
 
 	def __check_in_request(self, request, result, key):

@@ -1,7 +1,3 @@
-variables:
-  base_url: jsonplaceholder.typicode.com
-  id: 2
-
 requests:
 - method: GET
   url: https://{{base_url}}/posts/1
@@ -33,27 +29,34 @@ requests:
     headers:
       Access-Control-Allow-Credentials: 'true'
       CF-Cache-Status: HIT
-      CF-RAY: 3c711fc22be09200-EWR
+      CF-RAY: 3ca2b96c4eb818a0-EWR
       Cache-Control: public, max-age=14400
       Connection: keep-alive
       Content-Encoding: gzip
       Content-Type: application/json; charset=utf-8
-      Date: Sat, 02 Dec 2017 20:44:25 GMT
+      Date: Fri, 08 Dec 2017 21:12:41 GMT
       Etag: W/"124-yiKdLzqO5gfBrJFrcdJ8Yq0LGnU"
-      Expires: Sun, 03 Dec 2017 00:44:25 GMT
+      Expires: Sat, 09 Dec 2017 01:12:41 GMT
       Pragma: no-cache
       Server: cloudflare-nginx
-      Set-Cookie: __cfduid=d6d3baed60fb10e5e07c370675ef4b8691512247465; expires=Sun,
-        02-Dec-18 20:44:25 GMT; path=/; domain=.typicode.com; HttpOnly
+      Set-Cookie: __cfduid=d30aa692ea18674a80c870f072ee1c06a1512767561; expires=Sat,
+        08-Dec-18 21:12:41 GMT; path=/; domain=.typicode.com; HttpOnly
       Transfer-Encoding: chunked
-      Vary: Accept-Encoding
+      Vary: Origin, Accept-Encoding
       Via: 1.1 vegur
       X-Content-Type-Options: nosniff
       X-Powered-By: Express
-    response: '{"id": 1, "userId": 1, "title": "sunt aut facere repellat provident
-      occaecati excepturi optio reprehenderit", "body": "quia et suscipit\nsuscipit
-      recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas
-      totam\nnostrum rerum est autem sunt rem eveniet architecto"}'
+    response:
+      body: 'quia et suscipit
+
+        suscipit recusandae consequuntur expedita et cum
+
+        reprehenderit molestiae ut ut quas totam
+
+        nostrum rerum est autem sunt rem eveniet architecto'
+      id: 1
+      title: sunt aut facere repellat provident occaecati excepturi optio reprehenderit
+      userId: 1
     status_code: 200
 - method: GET
   url: https://{{base_url}}/posts/2
@@ -85,27 +88,34 @@ requests:
     headers:
       Access-Control-Allow-Credentials: 'true'
       CF-Cache-Status: HIT
-      CF-RAY: 3c711fc2dcc01840-EWR
+      CF-RAY: 3ca2b96d6997922a-EWR
       Cache-Control: public, max-age=14400
       Connection: keep-alive
       Content-Encoding: gzip
       Content-Type: application/json; charset=utf-8
-      Date: Sat, 02 Dec 2017 20:44:25 GMT
+      Date: Fri, 08 Dec 2017 21:12:41 GMT
       Etag: W/"116-jnDuMpjju89+9j7e0BqkdFsVRjs"
-      Expires: Sun, 03 Dec 2017 00:44:25 GMT
+      Expires: Sat, 09 Dec 2017 01:12:41 GMT
       Pragma: no-cache
       Server: cloudflare-nginx
-      Set-Cookie: __cfduid=de0be5f382de61e63263091beab127c601512247465; expires=Sun,
-        02-Dec-18 20:44:25 GMT; path=/; domain=.typicode.com; HttpOnly
+      Set-Cookie: __cfduid=d808e6960eeb9faf637367501017246701512767561; expires=Sat,
+        08-Dec-18 21:12:41 GMT; path=/; domain=.typicode.com; HttpOnly
       Transfer-Encoding: chunked
-      Vary: Accept-Encoding
+      Vary: Origin, Accept-Encoding
       Via: 1.1 vegur
       X-Content-Type-Options: nosniff
       X-Powered-By: Express
-    response: '{"id": 2, "userId": 1, "title": "qui est esse", "body": "est rerum
-      tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat
-      blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non
-      debitis possimus qui neque nisi nulla"}'
+    response:
+      body: 'est rerum tempore vitae
+
+        sequi sint nihil reprehenderit dolor beatae ea dolores neque
+
+        fugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis
+
+        qui aperiam non debitis possimus qui neque nisi nulla'
+      id: 2
+      title: qui est esse
+      userId: 1
     status_code: 200
 - method: GET
   url: https://{{base_url}}/posts/3
@@ -120,25 +130,35 @@ requests:
     headers:
       Access-Control-Allow-Credentials: 'true'
       CF-Cache-Status: HIT
-      CF-RAY: 3c711fc37c662138-EWR
+      CF-RAY: 3ca2b96eac129a10-EWR
       Cache-Control: public, max-age=14400
       Connection: keep-alive
       Content-Encoding: gzip
       Content-Type: application/json; charset=utf-8
-      Date: Sat, 02 Dec 2017 20:44:25 GMT
+      Date: Fri, 08 Dec 2017 21:12:42 GMT
       Etag: W/"11b-USacuIw5a/iXAGdNKBvqr/TbMTc"
-      Expires: Sun, 03 Dec 2017 00:44:25 GMT
+      Expires: Sat, 09 Dec 2017 01:12:42 GMT
       Pragma: no-cache
       Server: cloudflare-nginx
-      Set-Cookie: __cfduid=d727f6242a486283673f9234091761a221512247465; expires=Sun,
-        02-Dec-18 20:44:25 GMT; path=/; domain=.typicode.com; HttpOnly
+      Set-Cookie: __cfduid=d4adad68d5941e00a1afccf073a20ca261512767562; expires=Sat,
+        08-Dec-18 21:12:42 GMT; path=/; domain=.typicode.com; HttpOnly
       Transfer-Encoding: chunked
-      Vary: Accept-Encoding
+      Vary: Origin, Accept-Encoding
       Via: 1.1 vegur
       X-Content-Type-Options: nosniff
       X-Powered-By: Express
-    response: '{"id": 3, "userId": 1, "title": "ea molestias quasi exercitationem
-      repellat qui ipsa sit aut", "body": "et iusto sed quo iure\nvoluptatem occaecati
-      omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae
-      porro eius odio et labore et velit aut"}'
+    response:
+      body: 'et iusto sed quo iure
+
+        voluptatem occaecati omnis eligendi aut ad
+
+        voluptatem doloribus vel accusantium quis pariatur
+
+        molestiae porro eius odio et labore et velit aut'
+      id: 3
+      title: ea molestias quasi exercitationem repellat qui ipsa sit aut
+      userId: 1
     status_code: 200
+variables:
+  base_url: jsonplaceholder.typicode.com
+  id: 2
