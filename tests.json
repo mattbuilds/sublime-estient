@@ -1,8 +1,7 @@
 {
     "variables": {
-        "id": 1, 
         "base_url": "jsonplaceholder.typicode.com"
-    }, 
+    },
     "requests": [
         {
             "method": "GET", 
@@ -14,8 +13,7 @@
                 {
                     "assert": "equal", 
                     "expected": 200, 
-                    "actual": "status_code", 
-                    "result": true
+                    "actual": "status_code"
                 }, 
                 {
                     "assert": "equal", 
@@ -24,8 +22,7 @@
                         "response": [
                             "id"
                         ]
-                    }, 
-                    "result": true
+                    }
                 }
             ], 
             "variables": [

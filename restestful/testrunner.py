@@ -1,6 +1,7 @@
 import json
 import requests
 from .assertions import Assertions
+from .rtf_request import RTFRequest
 
 class TestRunner():
 	""" A test runner for RESTful APIs
@@ -81,7 +82,14 @@ class TestRunner():
 	def execute(self, http_reqs, variables):
 		results = []
 		for request in http_reqs:
-			print(variables)
+			try:
+				req = RTFRequest(request)
+				print(req)
+				print(req.url)
+			except Exception as e:
+				#TODO eventually create error output file
+				print(e)
+				
 			result = {
 				'url':request['url'],
 				'method':request['method']
