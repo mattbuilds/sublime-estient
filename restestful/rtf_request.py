@@ -1,19 +1,106 @@
+import requests
+from .assertions import Assertions
+
 class RTFRequest():
+	""" The RFTRequest clas is used to create and execute RESTFul APi
+	requests
+
+	Attributes:
+		required_arguments: a list of the arguments that are required to
+			make a request
+		optional_arguments: a list of the arguments that are optional but
+			can be included in a request
+		request: the object that will be used to create the http request
+			made up of required_arguments and optional_arguments
+		result: the result of a request that will be returned. Includes
+			the original request
+	"""
 	def __init__(self, request):
 		self.required_arguments = ('method', 'url')
 		self.optional_arguments = ('body', 'headers', 'tests', 'variables')
-		self.__set_required_arguments(request, self.required_arguments)
-		self.__set_optional_arguments(request, self.optional_arguments)
-		self.initial = self
+		self.result = {}
+		self.__set_attributes(request, self.required_arguments, True)
+		self.__set_attributes(request, self.optional_arguments, False)
 
-	def __set_required_arguments(self, request, keys):
+	def set_environment_variables(self, variables):
+		""" Sets the environement varaibles before the request
+		Args:
+			variables: a dictionary of what to look for and replace
+		Todo:
+			cycle through all objects to replace variables not just URL
+		"""
+		for key, value in variables.items():
+			self.url = self.url.replace("{{" + key + "}}",str(value))
+
+	def url_call(self):
+		"""Make the RESTFul Request"""
+		self.headers.setdefault('Content-type', 'application/json')
+		self.headers.setdefault('Accept', 'text/plain')
+			
+		if self.method == 'GET':
+			response = requests.get(self.url, headers=self.headers)
+		elif self.method == 'POST':
+			response = requests.post(self.url, data=self.data, headers=self.headers)
+		self.response = response
+		self.__set_output()
+
+	def run_tests(self):
+		"""Runs the tests."""
+		assertions = Assertions(self.response)
+		updated_tests = []
+		test_results = []
+		test_failures = []
+
+		for test in self.tests:
+			assertion = getattr(assertions, test['assert'])
+			test['result'] = assertion(test)
+			if test['result'] != True:
+				failure_string = self.method + " " + self.url
+				test_results.append(failure_string)
+			test_results.append(test['result'])
+			updated_tests.append(test)
+		self.tests = updated_tests
+		return test_results, test_failures
+
+	def get_variables(self, variables):
+		""" Add variables from response to dictionary of environment 
+			variables
+		Args:
+			variables: existing dictionary of environment variables
+
+		Returns:
+			an updated variables dictionary
+		"""
+		if not hasattr(self, 'variables'):
+			pass
+		else:
+			variable = self.response.json()
+			for request_variable in self.variables:
+				for k in request_variable['value']['response']:
+					variable= variable[k]
+				variables[request_variable['name']] = variable
+		return variables
+
+	def __set_output(self):
+		""" Sets the output of request"""
+		self.result['output'] = {
+			'status_code' : self.response.status_code,
+			'response' : self.response.json(),
+			'headers' : dict(self.response.headers)
+		}
+
+	def __set_attributes(self, request, keys, required = False):
+		""" Sets request values into object and set
+		Args:
+			request: the incoming request
+			keys: a list of keys to match
+			required: if the keys are required values
+		"""
 		for key in keys:
 			if key in request:
 				setattr(self, key, request[key])
+				self.result[key] = request[key]
 			else:
-				raise Exception("%s is a required field." % key)
+				if required:
+					raise Exception("%s is a required field." % key)
 
-	def __set_optional_arguments(self, request, keys):
-		for key in keys:
-			if key in request:
-				setattr(self, key, request[key])

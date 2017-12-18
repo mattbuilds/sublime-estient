@@ -25,8 +25,7 @@ class SublimeRequestFileParse():
 		edit: a sublime edit object used for outputing a file
 		variables: a region that is created fom the variables in the file
 		requests: a region that is created for the requests in the file
-		regions: an array of all the different Regions (sublime api)
-			right now that is just variables and requests
+		
 	Todo:
 		* Define a defintive way for the file to be written
 		* Add the ability to have tests for each request
