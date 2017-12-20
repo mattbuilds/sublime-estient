@@ -1,4 +1,4 @@
-{   
+{
     "variables": {
         "base_url": "jsonplaceholder.typicode.com"
     },
@@ -7,16 +7,15 @@
             "method": "GET", 
             "url": "https://{{base_url}}/posts/1", 
             "headers": {
-                "Content-type": "application/json", 
+                "Accept": "text/plain", 
                 "Authorization": "SomePassword", 
-                "Accept": "text/plain"
+                "Content-type": "application/json"
             }, 
             "tests": [
                 {
                     "assert": "equal", 
                     "expected": 200, 
-                    "actual": "status_code", 
-                    "result": true
+                    "actual": "status_code"
                 }, 
                 {
                     "assert": "equal", 
@@ -25,23 +24,22 @@
                         "response": [
                             "id"
                         ]
-                    }, 
-                    "result": true
-                },
+                    }
+                }, 
                 {
-                    "assert":"contain",
-                    "expected":"a",
+                    "assert": "contain", 
+                    "expected": "a", 
                     "actual": {
-                        "response":[
+                        "response": [
                             "body"
                         ]
                     }
-                },
+                }, 
                 {
-                    "assert":"notContain",
-                    "expected":"asdjifowefwoi",
+                    "assert": "notContain", 
+                    "expected": "asdjifowefwoi", 
                     "actual": {
-                        "response":[
+                        "response": [
                             "body"
                         ]
                     }

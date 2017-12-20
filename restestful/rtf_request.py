@@ -1,3 +1,4 @@
+import json
 import requests
 from .assertions import Assertions
 
@@ -26,11 +27,34 @@ class RTFRequest():
 		""" Sets the environement varaibles before the request
 		Args:
 			variables: a dictionary of what to look for and replace
-		Todo:
-			cycle through all objects to replace variables not just URL
 		"""
 		for key, value in variables.items():
-			self.url = self.url.replace("{{" + key + "}}",str(value))
+			for arg in self.result:
+				argument = getattr(self, arg)
+				arg_value = self.__replace_argument(argument, key, value)
+				setattr(self, arg, arg_value)
+
+	def __replace_argument(self, argument, key, value):
+		""" Checks if an object is a string and if so replaces the key and
+		value if it exists. If not a string, drill down until we hit a string 
+		otherwise just return the value
+
+		Todo:
+			Find a way to preserve type of value (ex boolean or int instead
+			of always making it a string)
+		"""
+		if isinstance(argument, str):
+			return argument.replace("{{" + key + "}}",str(value))
+		elif type(argument) is list or type(argument) is tuple:
+			for idx, item in enumerate(argument):
+				argument[idx] = self.__replace_argument(item, key, value)
+			return argument
+		elif type(argument) is dict:
+			for idx, item in argument.items():
+				argument[idx] = self.__replace_argument(item, key, value)
+			return argument
+		else:
+			return argument
 
 	def url_call(self):
 		"""Make the RESTFul Request"""
