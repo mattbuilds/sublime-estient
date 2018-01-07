@@ -1,6 +1,6 @@
 {
     "variables": {
-        "base_url": "jsonplaceholder.typicode.com"
+        "base_url": "yourdomain.com"
     },
     "requests": [
         {
@@ -37,7 +37,7 @@
                 }, 
                 {
                     "assert": "notContain", 
-                    "expected": "asdjifowefwoi", 
+                    "expected": "doesnotcontain", 
                     "actual": {
                         "response": [
                             "body"
